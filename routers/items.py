@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-import model
+import model,schemas
 from database import get_db
 from pydantic import BaseModel
 from typing import Optional
@@ -12,17 +12,11 @@ router = APIRouter(
 )
 
 
-
-
-
 # Create Function
 
-class ItemCreate(BaseModel):
-    title: str
-    description: str
 
 @router.post("/create")
-def create_item(item: ItemCreate, db: Session = Depends(get_db)):
+def create_item(item: schemas.ItemCreate, db: Session = Depends(get_db)):
     db_item = model.Item(title=item.title, description=item.description)
     db.add(db_item)
     db.commit()
@@ -76,13 +70,9 @@ def list_items(
     }
 
 
-class ItemUpdate(BaseModel):
-    title : Optional[str] = None
-    description : Optional[str] = None
-
 # Update Function
 @router.patch('/update/{item_id}')
-def update_item(item_id : str, item_data: ItemUpdate, db: Session = Depends(get_db)):
+def update_item(item_id : str, item_data: schemas.ItemUpdate, db: Session = Depends(get_db)):
     db_item = db.query(model.Item).filter(model.Item.id == item_id).first()
 
     if not db_item:
